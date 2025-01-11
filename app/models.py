@@ -1,18 +1,20 @@
-import uuid
-from typing import Optional
 
-from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy.ext.declarative import declarative_base
+from enum import Enum as PyEnum
 
-from enum import Enum
+Base = declarative_base()
 
-class TunnelStatus(Enum):
+class TunnelStatus(PyEnum):
     RUNNING = "RUNNING"
     EXITED = "EXITED"
 
-class Tunnel(BaseModel):
-    id: Optional[int] = None
-    pid: Optional[int] = None
-    status: TunnelStatus
-    hostname: str
-    port: int
-    public_url: str
+class Tunnel(Base):
+    __tablename__ = 'tunnels'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    pid = Column(Integer)
+    status = Column(Enum(TunnelStatus), nullable=False)
+    hostname = Column(String, nullable=False)
+    port = Column(Integer, nullable=False)
+    public_url = Column(String, nullable=False)

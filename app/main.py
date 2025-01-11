@@ -1,13 +1,14 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app import crud
 from app.api.v1 import router as api_router
-from app.health import router as health_router
+from app.core.db import health as db_health
+from app.api.health import router as health_router
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    if not crud.health():
+    if not db_health():
         raise Exception("Database is not healthy")
     yield
 

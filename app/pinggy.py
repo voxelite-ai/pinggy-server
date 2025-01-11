@@ -3,7 +3,7 @@ import threading
 import re
 from typing import Tuple
 
-from app.settings import settings
+from app.core.settings import settings
 
 def create_tunnel(url: str) -> Tuple[int, str]:
     pinggy_location = ""
