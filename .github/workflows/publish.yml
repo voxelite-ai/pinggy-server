@@ -6,6 +6,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          pytest tests
       - name: Login to GHCR
         run: |
           echo ${{ secrets.CI_TOKEN }} | docker login ghcr.io -u francesco-plt --password-stdin
