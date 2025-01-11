@@ -1,7 +1,7 @@
 # pinggy-server
 
 ## Overview
-`pinggy-server` is a FastAPI-based application that manages SSH tunnels using Pinggy. It allows you to create and manage tunnels programmatically. Itr currently only supports http tunnels. 
+`pinggy-server` is a FastAPI-based application that manages SSH tunnels using Pinggy. It allows you to create and manage tunnels programmatically. 
 
 ## Features
 - Create SSH tunnels

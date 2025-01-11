@@ -17,4 +17,5 @@ class Tunnel(Base):
     status = Column(Enum(TunnelStatus), nullable=False)
     hostname = Column(String, nullable=False)
     port = Column(Integer, nullable=False)
-    public_url = Column(String, nullable=False)
+    http_url = Column(String, nullable=False)
+    https_url = Column(String, nullable=False)

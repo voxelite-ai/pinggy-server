@@ -1,16 +1,19 @@
 import subprocess
 import threading
 import re
-from typing import Tuple
+from typing import Tuple, Pattern
 
 from app.core.settings import settings
 
-def create_tunnel(url: str) -> Tuple[int, str]:
+HTTP_URL_RE = re.compile(r'http://\S*pinggy\.link')
+HTTPS_URL_RE = re.compile(r'https://\S*pinggy\.link')
+
+def create_tunnel(url: str) -> Tuple[int, str, str]:
     pinggy_location = ""
     if settings.PINGGY_TOKEN:
         pinggy_location += "{}@".format(settings.PINGGY_TOKEN)
     pinggy_location += "a.pinggy.io"
-    command = "ssh -t -p 443 -R0:{} {}".format(url, pinggy_location)
+    command = "ssh -t -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -p 443 -R0:{} {}".format(url, pinggy_location)
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     def read_output(pipe, output_list):
@@ -32,14 +35,15 @@ def create_tunnel(url: str) -> Tuple[int, str]:
             raise RuntimeError("Tunnel creation failed: {}".format(''.join(stderr_lines)))
         stdout_thread.join(timeout=0.1)
 
-    public_url = extract_public_url(''.join(stdout_lines))
-    return process.pid, public_url
+    http_url = extract_url(''.join(stdout_lines), HTTP_URL_RE)
+    https_url = extract_url(''.join(stdout_lines), HTTPS_URL_RE)
+    return process.pid, http_url, https_url
 
-def extract_public_url(output: str) -> str:
-    match = re.search(r'http://\S*pinggy\.link', output)
+def extract_url(output: str, pattern: Pattern) -> str:
+    match = re.search(pattern, output)
     if match:
         return match.group(0)
-    raise RuntimeError("Public URL not found in the output")
+    raise RuntimeError("URL not found in output: {}".format(output))
 
 def terminate_tunnel(pid: int):
     process = subprocess.Popen(['kill', str(pid)])
