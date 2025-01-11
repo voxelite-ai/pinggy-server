@@ -1,0 +1,12 @@
+name: pinggy
+
+services:
+  app:
+    container_name: pinggy
+    build: .
+    ports:
+      - "8070:8080"
+    volumes:
+      - ./db:/app/db
+    environment:
+      - DATABASE_URL=/app/db/pinggy.db
