@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
+import re
 
 from app.crud import create_connection, insert_tunnel, select_tunnel, delete_tunnel
 from app.models import Tunnel, TunnelStatus
@@ -29,7 +30,7 @@ async def fetch(tunnel_id: int):
 
 @router.post("/tunnels", response_model=TunnelResponse, status_code=status.HTTP_201_CREATED)
 async def create(request: TunnelCreateRequest):
-    if not request.hostname:
+    if not request.hostname or not re.match(r'^[a-zA-Z.]{1,30}$', request.hostname):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid hostname")
     if not (1 <= request.port <= 65535):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid port")
