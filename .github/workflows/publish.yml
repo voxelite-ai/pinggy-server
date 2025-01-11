@@ -2,12 +2,14 @@ name: Docker Image CI for GHCR
 on:
   push
 jobs:
-  build_and_publish:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Login to GHCR
+        run: |
+          echo ${{ secrets.CI_TOKEN }} | docker login ghcr.io -u francesco-plt --password-stdin
       - name: Build and push the image
-        run : |
-          docker login --username francesco-plt --password ${{ secrets.GH_PAT }} ghcr.io
+        run: |
           docker build . --tag ghcr.io/voxelite-ai/pinggy-server:latest
           docker push ghcr.io/voxelite-ai/pinggy-server:latest
