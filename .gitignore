@@ -1,3 +1,5 @@
+.vscode
+**/*:memory:*
 .idea
 .idea/*
 ./.idea
