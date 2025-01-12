@@ -2,6 +2,8 @@ import subprocess
 import threading
 import re
 from typing import Tuple, Pattern
+from os import kill
+from signal import SIGTERM
 
 from app.core.settings import settings
 
@@ -46,5 +48,4 @@ def extract_url(output: str, pattern: Pattern) -> str:
     raise RuntimeError("URL not found in output: {}".format(output))
 
 def terminate_tunnel(pid: int):
-    process = subprocess.Popen(['kill', str(pid)])
-    process.wait()
+    kill(pid, SIGTERM)
