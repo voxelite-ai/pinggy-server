@@ -7,8 +7,8 @@ from signal import SIGTERM
 
 from app.core.settings import settings
 
-HTTP_URL_RE = re.compile(r'http://\S*pinggy\.link')
-HTTPS_URL_RE = re.compile(r'https://\S*pinggy\.link')
+HTTP_URL_RE = re.compile(r"http://\S*?pinggy\.link")
+HTTPS_URL_RE = re.compile(r"https://(?!.*pinggy\.io)\S*?pinggy\.link")
 
 def create_tunnel(url: str) -> Tuple[int, str, str]:
     pinggy_location = ""

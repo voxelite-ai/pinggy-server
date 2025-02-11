@@ -3,13 +3,29 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch
 from app.main import app
 from app.core.db import db
+from app.models import Base
+from sqlalchemy import (
+    create_engine,
+)
+from app.core.settings import settings
+from sqlalchemy.orm import (
+    sessionmaker,
+)
 
 client = TestClient(app)
 
+engine = create_engine(f"sqlite:///{settings.DATABASE_URL}", echo=True, future=True)
+Session = sessionmaker(bind=engine, expire_on_commit=False)
 
-@pytest.fixture(scope="session")
-def setup_db():
-    db.init_db()
+
+@pytest.fixture(scope="function")
+def session():
+    Base.metadata.create_all(db.engine)
+    try:
+        with Session() as session:
+            yield session
+    finally:
+        Base.metadata.drop_all(engine)
 
 
 @pytest.fixture

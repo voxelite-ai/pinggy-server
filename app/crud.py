@@ -1,25 +1,36 @@
-from typing import Optional
-from sqlalchemy.orm import Session
+from typing import Optional, List, Type, Any, Coroutine, Sequence
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Tunnel, TunnelStatus
 
-def get_tunnel(db: Session, tunnel_id: int) -> Optional[Tunnel]:
-    return db.query(Tunnel).filter(Tunnel.id == tunnel_id).first()
+async def get_tunnel(db: AsyncSession, tunnel_id: int) -> Optional[Tunnel]:
+    stmt = select(Tunnel).filter(Tunnel.id == tunnel_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
-def create_tunnel(db: Session, tunnel: Tunnel) -> Tunnel:
+async def get_tunnels(db: AsyncSession) -> Sequence[Tunnel]:
+    stmt = select(Tunnel)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+async def create_tunnel(db: AsyncSession, tunnel: Tunnel) -> Tunnel:
     db.add(tunnel)
-    db.commit()
-    db.refresh(tunnel)
+    await db.commit()
+    await db.refresh(tunnel)
     return tunnel
 
-def delete_tunnel(db: Session, tunnel_id: int) -> bool:
-    tunnel = db.query(Tunnel).filter(Tunnel.id == tunnel_id).first()
+async def delete_tunnel(db: AsyncSession, tunnel_id: int) -> bool:
+    stmt = select(Tunnel).filter(Tunnel.id == tunnel_id)
+    result = await db.execute(stmt)
+    tunnel = result.scalar_one_or_none()
     if tunnel:
         tunnel.pid = None
         tunnel.status = TunnelStatus.EXITED
-        db.commit()
+        await db.commit()
         return True
     return False
 
-
-def find_active_tunnels(db: Session) -> list[Tunnel]:
-    return db.query(Tunnel).filter(Tunnel.status == TunnelStatus.RUNNING).all()
+async def find_active_tunnels(db: AsyncSession) -> Sequence[Tunnel]:
+    stmt = select(Tunnel).filter(Tunnel.status == TunnelStatus.RUNNING)
+    result = await db.execute(stmt)
+    return result.scalars().all()
