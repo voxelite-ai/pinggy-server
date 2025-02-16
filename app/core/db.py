@@ -1,5 +1,4 @@
-import contextlib
-from typing import AsyncGenerator, AsyncIterator, Annotated
+from typing import AsyncGenerator, Annotated
 from os import path, makedirs
 
 from sqlalchemy import create_engine
@@ -8,12 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     async_scoped_session,
-    AsyncConnection,
 )
-from sqlalchemy.sql import text
-from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import NullPool
-from contextlib import asynccontextmanager
 from asyncio import current_task
 from fastapi import Depends
 from app.models import Base
