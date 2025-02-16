@@ -12,7 +12,7 @@ from app.core.db import db, get_session
 from app.models import Tunnel, TunnelStatus
 from app.pinggy import create_tunnel as create_pinggy_tunnel, terminate_tunnel
 
-router = APIRouter(prefix="/v1", tags=["v1"])
+router = APIRouter(tags=["v1"])
 
 class TunnelCreateRequest(BaseModel):
     hostname: str
