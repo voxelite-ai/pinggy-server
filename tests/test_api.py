@@ -19,8 +19,8 @@ Session = sessionmaker(bind=engine, expire_on_commit=False)
 
 
 @pytest.fixture(scope="function")
-def session():
-    Base.metadata.create_all(db.engine)
+def db():
+    Base.metadata.create_all(session.engine)
     try:
         with Session() as session:
             yield session

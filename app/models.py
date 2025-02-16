@@ -8,7 +8,7 @@ class TunnelStatus(PyEnum):
     CREATED = "CREATED"
     RUNNING = "RUNNING"
     EXITED = "EXITED"
-    FAILURE = "FAILURE"
+    FAILED = "FAILED"
 
 class Tunnel(Base):
     __tablename__ = 'tunnels'
@@ -19,5 +19,12 @@ class Tunnel(Base):
     status_details = Column(String)
     hostname = Column(String, nullable=False)
     port = Column(Integer, nullable=False)
-    http_url = Column(String, nullable=False)
-    https_url = Column(String, nullable=False)
+    http_url = Column(String)
+    https_url = Column(String)
+
+    def __repr__(self):
+        return (
+            f"Tunnel(id={self.id}, pid={self.pid}, status={self.status}, "
+            f"status_details={self.status_details}, hostname={self.hostname}, "
+            f"port={self.port}, http_url={self.http_url}, https_url={self.https_url})"
+        )

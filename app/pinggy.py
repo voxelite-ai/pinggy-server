@@ -6,11 +6,13 @@ from os import kill
 from signal import SIGTERM
 
 from app.core.settings import settings
+from app.core.log import  logger
 
-HTTP_URL_RE = re.compile(r"http://\S*?pinggy\.link")
-HTTPS_URL_RE = re.compile(r"https://(?!.*pinggy\.io)\S*?pinggy\.link")
+HTTP_URL_RE = re.compile(r'http://\S*pinggy\.link')
+HTTPS_URL_RE = re.compile(r'https://\S*pinggy\.link')
 
 def create_tunnel(url: str) -> Tuple[int, str, str]:
+    logger.debug(f"Creating tunnel for {url}")
     pinggy_location = ""
     if settings.PINGGY_TOKEN:
         pinggy_location += "{}@".format(settings.PINGGY_TOKEN)
@@ -48,4 +50,10 @@ def extract_url(output: str, pattern: Pattern) -> str:
     raise RuntimeError("URL not found in output: {}".format(output))
 
 def terminate_tunnel(pid: int):
-    kill(pid, SIGTERM)
+    try:
+        kill(pid, SIGTERM)
+    except ProcessLookupError as e:
+        if e.errno == 3:
+            logger.warning(f"Process with PID {pid} does not exist.")
+        else:
+            raise
