@@ -1,7 +1,7 @@
 import sqlite3
 from typing import AsyncGenerator
+from os import path, makedirs
 
-from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker, Session
@@ -13,6 +13,8 @@ DATABASE_URL = settings.DATABASE_URL
 
 class Database:
     def __init__(self):
+        self.create_db_if_necessary()
+
         # Sync engine
         self.engine = create_engine(
             f"sqlite+pysqlite:///{settings.DATABASE_URL}", echo=True, future=True
@@ -47,6 +49,14 @@ class Database:
             except Exception:
                 await session.rollback()
                 raise
+
+    def create_db_if_necessary(self):
+        db_dir = path.dirname(settings.DATABASE_URL)
+        if not path.exists(settings.DATABASE_URL):
+            if not path.exists(db_dir):
+                makedirs(db_dir, exist_ok=True)
+            open(settings.DATABASE_URL, "a").close()
+
 
 db = Database()
 

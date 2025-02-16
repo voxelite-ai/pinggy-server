@@ -11,4 +11,10 @@ down:
 dev:
 	uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
 
+test:
+	pytest tests
+
+clean:
+	rm -rf db
+
 restart: down up
