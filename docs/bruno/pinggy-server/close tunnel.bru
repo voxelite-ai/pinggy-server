@@ -1,0 +1,15 @@
+meta {
+  name: close tunnel
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{base_url}}/api/tunnels/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}

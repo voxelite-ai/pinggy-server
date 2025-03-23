@@ -5,8 +5,8 @@ from typing import Tuple, Pattern
 from os import kill
 from signal import SIGTERM
 
-from app.core.settings import settings
-from app.core.log import  logger
+from src.app.core.settings import settings
+from src.app.core.log import  logger
 
 HTTP_URL_RE = re.compile(r'http://\S*pinggy\.link')
 HTTPS_URL_RE = re.compile(r'https://\S*pinggy\.link')

@@ -1,14 +1,14 @@
 from contextlib import asynccontextmanager
-from app.core.log import logger
+from src.app.core.log import logger
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from fastapi import FastAPI
 
-from app.api.v1 import router as api_router
-from app.core.db import db, get_session, DatabaseSessionDependency
-from app.api.health import router as health_router
-from app import crud
+from src.app.api.v1 import router as api_router
+from src.app.core.db import db, get_session, DatabaseSessionDependency
+from src.app.api.health import router as health_router
+from src.app import crud
 
 
 @asynccontextmanager

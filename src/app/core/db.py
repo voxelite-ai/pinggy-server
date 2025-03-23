@@ -11,14 +11,15 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import NullPool
 from asyncio import current_task
 from fastapi import Depends
-from app.models import Base
-from app.core.settings import settings
+from src.app.models import Base
+from src.app.core.settings import settings
 
 DATABASE_URL = settings.DATABASE_URL
 
 
 class SqliteDatabase:
-    def __init__(self):
+    def __init__(self, custom_db_url: str = None):
+        self.database_url = custom_db_url or DATABASE_URL
         self.create_db_if_necessary()
         self._sync_engine = create_engine(
             f"sqlite:///{DATABASE_URL}",
@@ -43,13 +44,27 @@ class SqliteDatabase:
             raise Exception("DatabaseSessionManager is not initialized")
         await self.engine.dispose()
 
+    def create_db_if_necessary(self):
+        db_path = SqliteDatabase._get_db_path_from_url(self.database_url)
+
+        if db_path == ":memory:":
+            return
+
+        db_dir = path.dirname(db_path)
+        if db_dir:
+            makedirs(db_dir, exist_ok=True)
+
+        if not path.exists(db_path):
+            open(db_path, "a").close()
+
     @staticmethod
-    def create_db_if_necessary():
-        db_dir = path.dirname(settings.DATABASE_URL)
-        if not path.exists(settings.DATABASE_URL):
-            if not path.exists(db_dir):
-                makedirs(db_dir, exist_ok=True)
-            open(settings.DATABASE_URL, "a").close()
+    def _get_db_path_from_url(url):
+        if url == "sqlite:///:memory:":
+            return ":memory:"
+
+        if url.startswith("sqlite:///"):
+            return url[len("sqlite:///"):]
+        return url
 
 
 db = SqliteDatabase()

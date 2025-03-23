@@ -1,18 +1,18 @@
 from builtins import list
 
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 import re
 
-from app.crud import (
+from src.app.crud import (
     delete_tunnel,
     get_tunnel,
     get_tunnels,
 )
-from app.core.db import DatabaseSessionDependency
-from app.core.log import logger
-from app.models import Tunnel, TunnelStatus
-from app.pinggy import create_tunnel as create_pinggy_tunnel, terminate_tunnel
+from src.app.core.db import DatabaseSessionDependency
+from src.app.core.log import logger
+from src.app.models import Tunnel, TunnelStatus
+from src.app.pinggy import create_tunnel, terminate_tunnel
 
 router = APIRouter(tags=["v1"])
 
@@ -60,7 +60,7 @@ async def create(request: TunnelCreateRequest, session: DatabaseSessionDependenc
         logger.debug(f"Tunnel created: {tunnel}")
 
         try:
-            pid, http_url, https_url = create_pinggy_tunnel(
+            pid, http_url, https_url = create_tunnel(
                 f"{request.hostname}:{request.port}"
             )
             tunnel.status = TunnelStatus.RUNNING

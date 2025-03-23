@@ -16,7 +16,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run tests
         run: |
-          pytest tests
+          PYTHONPATH=$PYTHONPATH:$(pwd) pytest tests
       - name: Login to GHCR
         run: |
           echo ${{ secrets.CI_TOKEN }} | docker login ghcr.io -u francesco-plt --password-stdin

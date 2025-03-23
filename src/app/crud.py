@@ -1,13 +1,9 @@
-from typing import Optional, List, Type, Any, Coroutine, Sequence
-from fastapi import Depends
-from sqlalchemy.orm import Session
+from typing import Optional, Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import TimeoutError
-from contextlib import asynccontextmanager
-from app.models import Tunnel, TunnelStatus
-from app.core.log import logger
-from app.core.db import get_session, DatabaseSessionDependency
+from src.app.models import Tunnel, TunnelStatus
+from src.app.core.log import logger
+from src.app.core.db import DatabaseSessionDependency
 
 
 async def get_tunnel(
