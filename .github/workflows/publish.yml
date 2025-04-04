@@ -20,7 +20,12 @@ jobs:
       - name: Login to GHCR
         run: |
           echo ${{ secrets.CI_TOKEN }} | docker login ghcr.io -u francesco-plt --password-stdin
-      - name: Build and push the image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push multi-arch image
         run: |
-          docker build . --tag ghcr.io/voxelite-ai/pinggy-server:latest
-          docker push ghcr.io/voxelite-ai/pinggy-server:latest
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 \
+            --tag ghcr.io/voxelite-ai/pinggy-server:latest \
+            --push \
+            .
