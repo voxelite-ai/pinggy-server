@@ -15,6 +15,8 @@ RUN uv pip install uvicorn --system
 
 COPY . .
 
+RUN mkdir -p /app/db && chmod 777 /app/db
+
 VOLUME ["/app/db"]
 
 EXPOSE 8080

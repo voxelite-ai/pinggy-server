@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
 from src.app.core.log import logger
+from os import path, makedirs
+from sys import exit
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -13,12 +15,21 @@ from src.app import crud
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    db.init_db()
-    scheduler.start()
-    scheduler.add_job(prune_tunnels_job, IntervalTrigger(minutes=10))
-    await prune_tunnels_job()
-    yield
-    scheduler.shutdown()
+    db_dir = path.dirname(db.db_path)
+    makedirs(db_dir, exist_ok=True)
+
+    try:
+        logger.info(f"Initializing database at {db.db_path}")
+        db.init_db()
+        scheduler.start()
+        scheduler.add_job(prune_tunnels_job, IntervalTrigger(minutes=10))
+        await prune_tunnels_job()
+        yield
+    except Exception as e:
+        logger.error(f"Error during app startup: {e}")
+        exit(1)
+    finally:
+        scheduler.shutdown()
 
 
 app = FastAPI(name="pinggy-server", lifespan=lifespan)
@@ -31,8 +42,11 @@ app.include_router(health_router)
 
 
 async def prune_tunnels_job():
-    async for session in get_session():
-        await prune_tunnels(session)
+    try:
+        async for session in get_session():
+            await prune_tunnels(session)
+    except Exception as e:
+        logger.error(f"Error in prune_tunnels_job: {e}")
 
 
 async def prune_tunnels(session: DatabaseSessionDependency) -> None:
