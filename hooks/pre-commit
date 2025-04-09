@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Find all staged Python files
+files=$(git diff --name-only --diff-filter=ACM | grep '\.py$')
+
+if [ -z "$files" ]; then
+    echo "No Python files to format."
+    exit 0
+fi
+
+# Run ruff on each file
+echo "Running ruff on staged Python files..."
+for file in $files; do
+    ruff format $file
+    if [ $? -ne 0 ]; then
+        echo "Ruff formatting failed on $file. Please fix the issues and try again."
+        exit 1
+    fi
+done
+
+echo "Ruff formatting completed successfully."
+exit 0
