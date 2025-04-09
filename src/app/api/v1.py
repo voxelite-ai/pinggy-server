@@ -16,9 +16,11 @@ from src.app.pinggy import create_tunnel, terminate_tunnel
 
 router = APIRouter(tags=["v1"])
 
+
 class TunnelCreateRequest(BaseModel):
     hostname: str
     port: int
+
 
 class TunnelResponse(BaseModel):
     id: int
@@ -28,6 +30,7 @@ class TunnelResponse(BaseModel):
     http_url: str
     https_url: str
 
+
 class TunnelsResponse(BaseModel):
     tunnels: list[TunnelResponse]
 
@@ -35,10 +38,24 @@ class TunnelsResponse(BaseModel):
 @router.get("/tunnels", response_model=TunnelsResponse)
 async def fetch_all(session: DatabaseSessionDependency):
     tunnels = await get_tunnels(session)
-    return TunnelsResponse(tunnels=[TunnelResponse(id=tunnel.id, status=tunnel.status, hostname=tunnel.hostname, port=tunnel.port, http_url=tunnel.http_url, https_url=tunnel.https_url) for tunnel in tunnels])
+    return TunnelsResponse(
+        tunnels=[
+            TunnelResponse(
+                id=tunnel.id,
+                status=tunnel.status,
+                hostname=tunnel.hostname,
+                port=tunnel.port,
+                http_url=tunnel.http_url,
+                https_url=tunnel.https_url,
+            )
+            for tunnel in tunnels
+        ]
+    )
 
 
-@router.post("/tunnels", response_model=TunnelResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/tunnels", response_model=TunnelResponse, status_code=status.HTTP_201_CREATED
+)
 async def create(request: TunnelCreateRequest, session: DatabaseSessionDependency):
     logger.debug(f"Received request to create tunnel: {request}")
 
@@ -90,20 +107,33 @@ async def create(request: TunnelCreateRequest, session: DatabaseSessionDependenc
 async def fetch(tunnel_id: int, session: DatabaseSessionDependency):
     tunnel = await get_tunnel(session, tunnel_id)
     if not tunnel:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tunnel not found")
-    return TunnelResponse(id=tunnel.id, status=tunnel.status, hostname=tunnel.hostname, port=tunnel.port, http_url=tunnel.http_url, https_url=tunnel.https_url)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Tunnel not found"
+        )
+    return TunnelResponse(
+        id=tunnel.id,
+        status=tunnel.status,
+        hostname=tunnel.hostname,
+        port=tunnel.port,
+        http_url=tunnel.http_url,
+        https_url=tunnel.https_url,
+    )
 
 
 @router.delete("/tunnels/{tunnel_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete(tunnel_id: int, session: DatabaseSessionDependency):
     tunnel = await get_tunnel(session, tunnel_id)
     if not tunnel:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tunnel not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Tunnel not found"
+        )
 
     try:
         terminate_tunnel(tunnel.pid)
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
 
     await delete_tunnel(session, tunnel_id)
     return

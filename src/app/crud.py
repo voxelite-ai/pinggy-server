@@ -7,7 +7,7 @@ from src.app.core.db import DatabaseSessionDependency
 
 
 async def get_tunnel(
-        session: DatabaseSessionDependency, tunnel_id: int
+    session: DatabaseSessionDependency, tunnel_id: int
 ) -> Optional[Tunnel]:
     if tunnel_id is None:
         return None
@@ -15,6 +15,7 @@ async def get_tunnel(
     stmt = select(Tunnel).filter(Tunnel.id == tunnel_id)
     result = await session.execute(stmt)
     return result.scalar_one_or_none()
+
 
 async def get_tunnels(session: DatabaseSessionDependency) -> Sequence[Tunnel]:
     logger.debug("Fetching all tunnels")
@@ -42,6 +43,7 @@ async def delete_tunnel(db: AsyncSession, tunnel_id: int) -> bool:
         await db.commit()
         return True
     return False
+
 
 async def find_active_tunnels(db: AsyncSession) -> Sequence[Tunnel]:
     logger.debug("Finding active tunnels")

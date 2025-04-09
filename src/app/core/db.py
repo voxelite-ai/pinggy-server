@@ -63,7 +63,7 @@ class SqliteDatabase:
             return ":memory:"
 
         if url.startswith("sqlite:///"):
-            return url[len("sqlite:///"):]
+            return url[len("sqlite:///") :]
         return url
 
 

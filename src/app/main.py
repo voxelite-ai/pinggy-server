@@ -20,6 +20,7 @@ async def lifespan(app: FastAPI):
     yield
     scheduler.shutdown()
 
+
 app = FastAPI(name="pinggy-server", lifespan=lifespan)
 scheduler = AsyncIOScheduler()
 
@@ -28,9 +29,11 @@ logger.info("App is starting up")
 app.include_router(api_router, prefix="/api")
 app.include_router(health_router)
 
+
 async def prune_tunnels_job():
     async for session in get_session():
         await prune_tunnels(session)
+
 
 async def prune_tunnels(session: DatabaseSessionDependency) -> None:
     active_tunnels = await crud.find_active_tunnels(session)
