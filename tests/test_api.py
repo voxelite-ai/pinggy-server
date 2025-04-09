@@ -1,17 +1,17 @@
-from os import environ, path, remove
+import sys
 from pathlib import Path
+
+root_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(root_dir))
+
+from src.app.main import app
+from os import environ, path, remove
 
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
-from src.app.main import app
 from src.app.core.db import SqliteDatabase, get_session
-from sqlalchemy import (
-    create_engine, NullPool,
-)
 
 tmp_dir = Path("./tmp")
 tmp_dir.mkdir(exist_ok=True)
@@ -98,3 +98,4 @@ def test_delete_tunnel(client, mock_create_tunnel, mock_terminate_tunnel):
 
     # assert
     assert delete_response.status_code == 204
+
